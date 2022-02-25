@@ -23,7 +23,7 @@ public class NoteBook {
 		ArrayList<Note> notes = targetFolder.getNotes();
 		for (Note noteInFolder : notes) {
 			if (noteInFolder.equals(note)) {
-				System.out.println("Creating note" + note.getTitle() + "under folder" + folderName + " failed");
+				System.out.println("Creating note " + note.getTitle() + " under folder " + folderName + " failed");
 				return false;
 			}
 		}
