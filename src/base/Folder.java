@@ -91,8 +91,10 @@ public class Folder implements Comparable<Folder> {
 	
 	@Override
 	public int compareTo(Folder f) {
-		
-		return f.getName().compareTo(this.name);
+		int result = f.getName().compareTo(this.name);
+		if (result > 0) return 1;
+		else if (result < 0) return -1;
+		return 0;
 	}
 	
 }
