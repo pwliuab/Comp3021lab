@@ -1,5 +1,6 @@
 package base;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 public class NoteBook {
 	private ArrayList<Folder> folders;
@@ -13,7 +14,7 @@ public class NoteBook {
 			this.folders.get(i).sortNotes();
 		}
 		
-		this.folders.sort(null);
+		Collections.sort(this.folders);
 	}
 	
 	public boolean insertNote(String folderName, Note note) {

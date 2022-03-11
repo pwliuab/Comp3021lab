@@ -1,5 +1,6 @@
 package base;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
@@ -35,11 +36,12 @@ public class Folder implements Comparable<Folder> {
 	            previousItem = resultStack.pop();
 	            continue;
 	        }
-	        boolean condition = content.contains(item);
-	        if (wasOr) condition = content.contains(item) || previousItem;
-	 		wasOr =false; 
+	        boolean condition = (wasOr)? content.contains(item) || previousItem :  content.contains(item);
+	 		
+	        wasOr = false; 
 	        resultStack.push(condition);
 	    }
+	    
 	    boolean result = true;
 	    for (boolean condition : resultStack) {
 	    	result = result && condition;
@@ -81,7 +83,7 @@ public class Folder implements Comparable<Folder> {
 	}
 	
 	public void sortNotes() {
-		this.notes.sort(null);
+		Collections.sort(this.notes);
 	}
 	
 	public boolean equals(Object folder) {
@@ -91,7 +93,7 @@ public class Folder implements Comparable<Folder> {
 	
 	@Override
 	public int compareTo(Folder f) {
-		int result = f.getName().compareTo(this.name);
+		int result = this.name.compareTo(f.name);
 		if (result > 0) return 1;
 		else if (result < 0) return -1;
 		return 0;
