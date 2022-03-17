@@ -7,3 +7,6 @@ Pak Wai Liu ID 20610588
 
 # Lab 3 result:
 ![image](https://user-images.githubusercontent.com/67176560/157888910-61e3f52d-e196-4685-9ed9-b1eb185fbce9.png)
+
+# Lab 4 result:
+![image](https://user-images.githubusercontent.com/67176560/158828139-ceda3c06-9de4-4332-afe1-98d6b93de997.png)
