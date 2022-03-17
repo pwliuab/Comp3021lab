@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
-public class Folder implements Comparable<Folder> {
+public class Folder implements Comparable<Folder>, java.io.Serializable {
 	private ArrayList<Note> notes;
 	private String name;
 	
@@ -50,6 +50,7 @@ public class Folder implements Comparable<Folder> {
 	    return result;
 		
 	}
+	
 	
 	public List<Note> searchNotes(String keywords) {
 		String lowerCaseKeywords = keywords.toLowerCase();

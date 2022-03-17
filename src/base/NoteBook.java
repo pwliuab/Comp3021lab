@@ -1,12 +1,39 @@
 package base;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
-public class NoteBook {
+public class NoteBook implements java.io.Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private ArrayList<Folder> folders;
 	
 	public NoteBook() {
 		this.folders = new ArrayList<Folder>();
+	}
+	
+	public NoteBook(String file) {
+		FileInputStream fis = null;
+		ObjectInputStream in = null;
+		try {
+			fis = new FileInputStream(file);
+			in = new ObjectInputStream(fis);
+			NoteBook n = (NoteBook) in.readObject();
+			this.folders = n.getFolders();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
 	}
 	
 	public void sortFolders() {
@@ -15,6 +42,23 @@ public class NoteBook {
 		}
 		
 		Collections.sort(this.folders);
+	}
+	
+	public boolean save(String file) {
+		
+		FileOutputStream fos = null;
+		ObjectOutputStream out = null;
+		try {
+			fos = new FileOutputStream(file);
+			out = new ObjectOutputStream(fos);
+			out.writeObject(this);
+			out.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		return true;
 	}
 	
 	public boolean insertNote(String folderName, Note note) {
@@ -44,6 +88,8 @@ public class NoteBook {
 		
 	}
 
+	
+	
 	public List<Note>searchNotes(String keywords){
 		List<Note> resultList = new ArrayList<Note>();
 		for (Folder f : this.folders) {
