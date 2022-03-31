@@ -151,7 +151,8 @@ class TableNote implements  Note, {
     String Column
     e.g. if we want to find a set of record where Major = CS 
           following code : columnMap.get("Major").get("CS")
-  - String: key is "column name", 
+  - String: key is "column title name", e.g. "Major", 
+    HashMap<String, Set<Integer>> : value, stores a set of row number that related to "talbeList",
     
 ```
 #### important algorithms
