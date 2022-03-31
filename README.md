@@ -141,11 +141,22 @@ The goal is that we want to load such file into Java and create an object of cla
 class TableNote implements  Note, {
   private ArrayList <HashMap<String, String>> tableList;
   private HashMap<String, Set<Integer>> columnMap;
-  ...
+  public TableNote(String file) {
+   ...
+  }
+  public exportNoteToFile(String dir) {
+    ....
+  }
+  
+  public ArrayList<HashMap<String, String>> getFileByCondition(String cmd) {
+    ...
+  }
 }
+
 - tableList: @Generic Type HashMap<String, String>
   - HashMap<String, String> is to seperate a row into different column,
   - String :key is "column name", String :value is "content"
+  
 - columnMap:  HashMap<String, Set<Integer>> columnMap;
   - HashMap<String, HashMap<String, Set<Integer>> >, is to store row number in tableList by      
     String Column
@@ -153,12 +164,30 @@ class TableNote implements  Note, {
           following code : columnMap.get("Major").get("CS")
   - String: key is "column title name", e.g. "Major", 
     HashMap<String, Set<Integer>> : value, stores a set of row number that related to "talbeList",
-    
+  
 ```
 #### important algorithms
 ```
-- String.split() to split String in a line, get different columns and contents
+- String.split(",") to split String in a line, get different columns and contents
+
+
 ```
 #### The new classes, method members may add and their functionalities
 ```
+class TableNote implements  Note, {
+  private ArrayList <HashMap<String, String>> tableList;
+  private HashMap<String, Set<Integer>> columnMap;
+  public TableNote(String file) {
+   ...
+  }
+  public exportNoteToFile(String dir) {
+    ....
+  }
+  
+  public ArrayList<HashMap<String, String>> getFileByCondition(String cmd) {
+    ...
+  }
+}
+
+
 ```
