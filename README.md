@@ -138,9 +138,20 @@ The goal is that we want to load such file into Java and create an object of cla
 ```
 #### possible data structure
 ```
-class TableNote implements  Note, implements{
-  
+class TableNote implements  Note, {
+  private ArrayList <HashMap<String, String>> tableList;
+  private HashMap<String, Set<Integer>> columnMap;
+  ...
 }
+- tableList: @Generic Type HashMap<String, String>
+  - HashMap<String, String> is to seperate a row into different column,
+  - String :key is "column name", String :value is "content"
+- columnMap:  HashMap<String, Set<Integer>> columnMap;
+  - HashMap<String, HashMap<String, Set<Integer>> >, is to store row number in tableList by      
+    String Column
+    e.g. if we want to find a set of record where Major = CS 
+          following code : columnMap.get("Major").get("CS")
+  - String: key is "column name", 
     
 ```
 #### important algorithms
