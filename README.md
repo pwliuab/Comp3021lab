@@ -127,13 +127,25 @@ The goal is that we want to load such file into Java and create an object of cla
 ```
 #### overview design
 ```
-  
+- 1. we need to create a class called TableNote which is a similar type to "note", so it can implement Note and implement serializable to store it into txt,
+- 2. For this tableNote, since each row is a record, which row's data should be store together to keep their meaning. - like database,
+     so the row content
+     Each record should be accessed whenever we get a specific "column name" or by a series of condition,
+     e.g. user enter : name = "Bowen", major = "CS", it returns specific record number.
+          user enter : name = "CS", returns:  record 0, record 1...
+- 3. For the Constructor, it takes String : file directory as a parameter, read and store content into the current class.
+- 4. For the Method : it takes user command to return a list of record
 ```
 #### possible data structure
 ```
+class TableNote implements  Note, implements{
+  
+}
+    
 ```
 #### important algorithms
 ```
+- String.split() to split String in a line, get different columns and contents
 ```
 #### The new classes, method members may add and their functionalities
 ```
