@@ -137,63 +137,374 @@ The goal is that we want to load such file into Java and create an object of cla
 - 4. For the Method : it takes user command to return a list of record
 ```
 #### possible data structure
+![image](https://user-images.githubusercontent.com/67176560/161192285-0a24bb8d-4b37-4903-b50b-2b3178f8a9d9.png)
 ```
+
 class TableNote implements  Note, {
   private ArrayList <HashMap<String, String>> tableList;
-  private HashMap<String, Set<Integer>> columnMap;
+  private HashMap<String, HashMap<String,Set<Integer>>> columnMap;
+  private ArrayList <String> titleList;
+
   public TableNote(String file) {
    ...
   }
-  public exportNoteToFile(String dir) {
+  
+  public setColumnMap(String columnTitle, String columnContent, int tableListRowNumber) {
+    ....
+  }
+  
+  public setTableList(String columnTitle, String content, int row) {
     ....
   }
   
   public ArrayList<HashMap<String, String>> getFileByCondition(String cmd) {
     ...
   }
+  
+  public boolean save(String file) {
+    ...
+  }
+  public void getTextFromFile(String absolutePath) {
+    ...
+  }
+  
 }
 
-- tableList: @Generic Type HashMap<String, String>
+
+
+
+- tableList: ArrayList <HashMap<String, String>>
   - HashMap<String, String> is to seperate a row into different column,
   - String :key is "column name", String :value is "content"
   
-- columnMap:  HashMap<String, Set<Integer>> columnMap;
+- columnMap: HashMap<String, HashMap<String,Set<Integer>>> columnMap;
   - HashMap<String, HashMap<String, Set<Integer>> >, is to store row number in tableList by      
     String Column
     e.g. if we want to find a set of record where Major = CS 
           following code : columnMap.get("Major").get("CS")
   - String: key is "column title name", e.g. "Major", 
     HashMap<String, Set<Integer>> : value, stores a set of row number that related to "talbeList",
+- titleList: ArrayList <String>, for content's reference.
+  e.g. if we split content String[] stringContent = "CS, Paul".split(", "),  stringContent[0] -> CS , titleList.get(0) -> Major
   
+  
+
 ```
 #### important algorithms
 ```
-- String.split(",") to split String in a line, get different columns and contents
-
-
+- Method getTextFromFile - String.split(",") to split String in a line, get different columns and contents
+	 		 - While loop and for loop, loop through String array to assign data member
+			 
+- Method getFileByCondition - String.split(" and ") , and String.split(" = "), to get condition and its value e.g. "Major = CS"
+			    - search the key and value by accessing e.g. this.columnMap.get("Major").get("CS")
+			    - comparing the different set and get the common row number,
+			      e.g. if we have 2 conditions : cmd = "Major = CS and Name = Ben"
+			      	   this.columnMap.get("Major").get("CS") -> Set (0); set with row number = 0;
+				   this.columnMap.get("Name").get("Ben") -> Set (0);
+				   since both of the set get "0", we will return record 0, 
+				   this.tableList.get(0) will be selected ...
+		 	   - check common row number among different sets by using HashMap<Integer, Integer>
+			   	- count the existance of each integer, if they are == to the condition number, this is the correct record
+				
+- Method exportNoteToFile - loop through tableList, get its title and content.
+			  - write it back to the txt file.
+the full implementation can be seen below.
 ```
 #### The new classes, method members may add and their functionalities
 ```
+
 class TableNote implements  Note, {
   private ArrayList <HashMap<String, String>> tableList;
-  private HashMap<String, Set<Integer>> columnMap;
+  private HashMap<String, HashMap<String,Set<Integer>>> columnMap;
+  private ArrayList <String> titleList;
+
   public TableNote(String file) {
    ...
   }
-  public exportNoteToFile(String dir) {
+  // set the data structure for user searching
+  public setColumnMap(String columnTitle, String columnContent, int tableListRowNumber) {
     ....
   }
   
+  // set the whole table structure,
+  public setTableList(String columnTitle, String content, int row) {
+    ....
+  }
+  
+  // getFileByCondition, by inputting cmd = "Major = CS" return records
   public ArrayList<HashMap<String, String>> getFileByCondition(String cmd) {
     ...
   }
+  
+  // save class as file
+  public boolean save(String file) {
+    ...
+  }
+  // put first row content in arraylist
+  public void setTitleList(String [] titleList) {
+  	...
+  }
+  
+  // extract text from txt file, asign them to corresponding data member
+  public void getTextFromFile(String absolutePath) {
+    ...
+  }
+  
+}
+
 }
 ```
 #### Implementation / source code
 ```
 - github: 
 ---------------------------------------
+package base;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
 
+public class TableNote extends  Note implements java.io.Serializable {
+	  private ArrayList <HashMap<String, String>> tableList;
+	  private HashMap<String ,HashMap<String, Set<Integer>>> columnMap;
+	  private ArrayList <String> titleList;
+	  public TableNote(String filePath) {
+		  super("Table Note ");
+		  
+		  try {
+			  this.tableList = new ArrayList<>();
+			  this.columnMap = new HashMap<>();
+			  this.titleList = new ArrayList<>();
+			  this.getTextFromFile(filePath);
+//            uncomment it to test your data structure			  
+//	        	this.testTableList(this.tableList);
+//	        	this.testColumnMap();
+		  } catch(Exception e) {
+			  System.out.print(e);
+		  }
+		  
+	  }
+	  public TableNote(String filelocation, boolean isObjectFile) {
+		  super("Table Note through Object file");
+			FileInputStream fis = null;
+			ObjectInputStream in = null;
+			try {
+				fis = new FileInputStream(filelocation);
+				in = new ObjectInputStream(fis);
+				TableNote n = (TableNote) in.readObject();
+				this.tableList = n.tableList;
+				this.columnMap = n.columnMap;
+				this.titleList = n.titleList;
+				in.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+	  }
+	  
+	  
+	  public ArrayList<String> getRecord(String cmd) {
+		  
+		  if (cmd.equals("")) return null;
+		  String [] constrainList = cmd.split(" and ");
+		  HashMap<Integer, Integer> rowNumpairNumOfExistence = new HashMap<>();
+		  for (String item : constrainList) {
+			  String[] constrains = item.split(" = ");
+			  String key = constrains[0];
+			  String value = constrains[1];
+			  Set<Integer> rowNumSet = this.columnMap.get(key).get(value);
+			  for (Integer i : rowNumSet) {
+				  if (rowNumpairNumOfExistence.containsKey(i)) {
+					  rowNumpairNumOfExistence.put(i, rowNumpairNumOfExistence.get(i) + 1);
+				  } else {
+					  rowNumpairNumOfExistence.put(i, 1);
+				  }
+			  }
+			  
+		  }
+		  
+		  ArrayList<String> resultList = new ArrayList<>();
+		  for (HashMap.Entry<Integer, Integer> record: rowNumpairNumOfExistence.entrySet()) {
+			  if (constrainList.length == record.getValue()) {
+				 String result = "";
+				 HashMap<String, String> columnNamepairContent= this.tableList.get(record.getKey());
+				 for (HashMap.Entry<String, String> content: columnNamepairContent.entrySet()) {
+					 result += content.getKey();
+					 result += " : ";
+					 result += content.getValue();
+					 result += ", ";
+				 }
+				 resultList.add(result);
+				 System.out.println(result);
+			  }
+		  }
+		  return resultList;
+	  }
+	  
+	  public void setColumnMap(String columnTitle, String columnContent, int tableListRowNumber) {
+		  Set<Integer> recordCollection = null;
+		  if (this.columnMap.containsKey(columnTitle)) {
+			  HashMap<String, Set<Integer>> recordList = this.columnMap.get(columnTitle);
+			  if ( recordList.containsKey(columnContent)) {
+				  recordCollection = recordList.get(columnContent);
+				  recordCollection.add(tableListRowNumber);
+			  } else {
+				  recordCollection = new HashSet<Integer>();
+				  recordCollection.add(tableListRowNumber);
+				  recordList.put(columnContent, recordCollection);
+			  }
+
+			  return;
+		  }
+		  
+		  recordCollection = new HashSet<Integer>();
+		  recordCollection.add(tableListRowNumber);
+		  HashMap<String, Set<Integer>> columnCstr = new HashMap<>();
+		  columnCstr.put(columnContent, recordCollection);
+		  this.columnMap.put(columnTitle, columnCstr);
+	  }
+	  
+	  public void setTableList(String columnTitle, String content, int row) {
+		  HashMap<String, String> record = null;
+		  if (this.tableList.size() - 1 != row) {
+			  record = this.tableList.get(this.tableList.size() - 1);
+			  record.put(columnTitle, content);
+			  return;
+		  }
+		  
+		  record = new HashMap<>();
+		  record.put(columnTitle, content);
+		  this.tableList.add(record);
+	  }
+	  
+	  public void setTitleList(String [] titleList) {
+		  if(this.titleList == null) this.titleList = new ArrayList<String>();
+		  for (String item: titleList) {
+			  this.titleList.add(item);
+		  }
+	  }
+	  
+	  public void testTableList(ArrayList<HashMap<String, String>> tlist) {
+		  for (HashMap<String, String> item : tlist) {
+			  System.out.println("Row :  =================================");
+			  for (HashMap.Entry<String, String> record : item.entrySet()) {
+				  System.out.println("Column :" + record.getKey() + ", Content: " + record.getValue());
+			  }
+		  }
+		  
+	  }
+	  
+	  public void testColumnMap() {
+
+		  for (HashMap.Entry<String, HashMap<String, Set<Integer>>> item : this.columnMap.entrySet()) {
+			  System.out.println("Column Title : " + item.getKey());
+			  for (HashMap.Entry<String, Set<Integer>> columnNamePairRowNumber: item.getValue().entrySet()) {
+				  String rowNumberList = "";
+				  System.out.println("column content: " + columnNamePairRowNumber.getKey());
+				  for (int i : columnNamePairRowNumber.getValue()) {
+					  rowNumberList += i + " ";
+				  }
+				  System.out.println("CONTENT LIST Row :" + rowNumberList);
+			  }
+		  }
+	  }
+	  
+	  
+		public boolean save(String file) {
+			
+			FileOutputStream fos = null;
+			ObjectOutputStream out = null;
+			try {
+				fos = new FileOutputStream(file);
+				out = new ObjectOutputStream(fos);
+				out.writeObject(this);
+				out.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+			
+			return true;
+		}
+	  
+	  public void getTextFromFile(String absolutePath) throws IOException {
+		File filename = new File(absolutePath);
+        InputStreamReader reader = new InputStreamReader(new FileInputStream(filename));
+        BufferedReader br = new BufferedReader(reader);
+        String line = br.readLine();
+        String [] columnNames = null;
+        while (line != null) {
+        	if (columnNames == null) {
+        		columnNames = line.split(", ");
+        		this.setTitleList(columnNames);
+                line = br.readLine();
+        		continue;
+        	}
+        	
+        	String [] contentList = line.split(", ");
+        	// set the tableList
+        	int row = this.tableList.size() - 1;
+        	for (int i = 0; i < contentList.length;  i++) {
+        		this.setTableList(this.titleList.get(i), contentList[i], row);
+        		this.setColumnMap(this.titleList.get(i), contentList[i], this.tableList.size() - 1);
+        	}
+        	
+
+            line = br.readLine();
+        }
+        
+        
+	}
+	  
+	  
+	    public void exportNoteToFile() throws IOException {
+	        File filename = new File("data/result.txt");
+	        OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(filename));
+	        BufferedWriter bw = new BufferedWriter(writer);
+	        String content = "";
+	        String titleContent = "";
+	        boolean hasSetedTitle = false;
+			  for (HashMap<String, String> item : this.tableList) {
+				  System.out.println("Row :  =================================");
+				  for (HashMap.Entry<String, String> record : item.entrySet()) {
+					  System.out.println("Column :" + record.getKey() + ", Content: " + record.getValue());
+					  if (!hasSetedTitle) {
+						  titleContent += record.getKey();
+						  titleContent += ", ";
+					  }
+					  content += record.getValue();
+					  content += ", ";
+				  }
+				  
+				  titleContent += "\n";
+				  
+				  if (!hasSetedTitle) bw.write(titleContent);
+				  content += "\n";
+				  hasSetedTitle = true;
+				  bw.write(content);
+			  }
+			  
+		  
+//	        for (Record record : Records) {
+//	            //Invoke the toString method of Record.
+//	            bw.write(record.toString() + "\n");
+//	        }
+	        bw.close();
+	    }
+	  
+//	  public ArrayList<HashMap<String, String>> getFileByCondition(String cmd) {
+//		  
+//	  }
+	  
+	}
 
 
 ```
