@@ -192,26 +192,66 @@ class TableNote implements  Note, {
 ```
 #### important algorithms
 ```
-- String.split(",") to split String in a line, get different columns and contents
-- while loop and for loop, loop through String array to assign data member
-- set columnMap 
-
+- Method getTextFromFile - String.split(",") to split String in a line, get different columns and contents
+	 		 - While loop and for loop, loop through String array to assign data member
+			 
+- Method getFileByCondition - String.split(" and ") , and String.split(" = "), to get condition and its value e.g. "Major = CS"
+			    - search the key and value by accessing e.g. this.columnMap.get("Major").get("CS")
+			    - comparing the different set and get the common row number,
+			      e.g. if we have 2 conditions : cmd = "Major = CS and Name = Ben"
+			      	   this.columnMap.get("Major").get("CS") -> Set (0); set with row number = 0;
+				   this.columnMap.get("Name").get("Ben") -> Set (0);
+				   since both of the set get "0", we will return record 0, 
+				   this.tableList.get(0) will be selected ...
+		 	   - check common row number among different sets by using HashMap<Integer, Integer>
+			   	- count the existance of each integer, if they are == to the condition number, this is the correct record
+				
+- Method exportNoteToFile - loop through tableList, get its title and content.
+			  - write it back to the txt file.
+the full implementation can be seen below.
 ```
 #### The new classes, method members may add and their functionalities
 ```
+
 class TableNote implements  Note, {
   private ArrayList <HashMap<String, String>> tableList;
-  private HashMap<String, Set<Integer>> columnMap;
+  private HashMap<String, HashMap<String,Set<Integer>>> columnMap;
+  private ArrayList <String> titleList;
+
   public TableNote(String file) {
    ...
   }
-  public exportNoteToFile(String dir) {
+  // set the data structure for user searching
+  public setColumnMap(String columnTitle, String columnContent, int tableListRowNumber) {
     ....
   }
   
+  // set the whole table structure,
+  public setTableList(String columnTitle, String content, int row) {
+    ....
+  }
+  
+  // getFileByCondition, by inputting cmd = "Major = CS" return records
   public ArrayList<HashMap<String, String>> getFileByCondition(String cmd) {
     ...
   }
+  
+  // save class as file
+  public boolean save(String file) {
+    ...
+  }
+  // put first row content in arraylist
+  public void setTitleList(String [] titleList) {
+  	...
+  }
+  
+  // extract text from txt file, asign them to corresponding data member
+  public void getTextFromFile(String absolutePath) {
+    ...
+  }
+  
+}
+
 }
 ```
 #### Implementation / source code
@@ -425,9 +465,40 @@ public class TableNote extends  Note implements java.io.Serializable {
 	}
 	  
 	  
-	  public void exportNoteToFile(String dir) {
+	    public void exportNoteToFile() throws IOException {
+	        File filename = new File("data/result.txt");
+	        OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(filename));
+	        BufferedWriter bw = new BufferedWriter(writer);
+	        String content = "";
+	        String titleContent = "";
+	        boolean hasSetedTitle = false;
+			  for (HashMap<String, String> item : this.tableList) {
+				  System.out.println("Row :  =================================");
+				  for (HashMap.Entry<String, String> record : item.entrySet()) {
+					  System.out.println("Column :" + record.getKey() + ", Content: " + record.getValue());
+					  if (!hasSetedTitle) {
+						  titleContent += record.getKey();
+						  titleContent += ", ";
+					  }
+					  content += record.getValue();
+					  content += ", ";
+				  }
+				  
+				  titleContent += "\n";
+				  
+				  if (!hasSetedTitle) bw.write(titleContent);
+				  content += "\n";
+				  hasSetedTitle = true;
+				  bw.write(content);
+			  }
+			  
 		  
-	  }
+//	        for (Record record : Records) {
+//	            //Invoke the toString method of Record.
+//	            bw.write(record.toString() + "\n");
+//	        }
+	        bw.close();
+	    }
 	  
 //	  public ArrayList<HashMap<String, String>> getFileByCondition(String cmd) {
 //		  
