@@ -137,8 +137,8 @@ The goal is that we want to load such file into Java and create an object of cla
 - 4. For the Method : it takes user command to return a list of record
 ```
 #### possible data structure
-```
 ![image](https://user-images.githubusercontent.com/67176560/161192285-0a24bb8d-4b37-4903-b50b-2b3178f8a9d9.png)
+```
 
 class TableNote implements  Note, {
   private ArrayList <HashMap<String, String>> tableList;
