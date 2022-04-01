@@ -1,0 +1,8 @@
+Name, Major, PhoneNumber
+Ben, CS, 110
+Paul, Cpeg, 120
+Daisy, art, 999
+Owen, Math, 123
+Jenny, economy, 5458756
+Paul, CS, 9445315
+Paul, CS, 120
